@@ -1,0 +1,29 @@
+FUNCTION_BLOCK sensor
+
+VAR_INPUT
+    near : REAL;
+    medium : REAL;
+    far : REAL;
+END_VAR
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK robot_velocity
+
+VAR_INPUT
+    slow : REAL;
+    medium : REAL;
+    fast : REAL;
+END_VAR
+
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK mushroom
+
+VAR_INPUT
+    poisonous : REAL;
+    none : REAL;
+    edible : REAL;
+END_VAR
+
+END_FUNCTION_BLOCK
