@@ -1,29 +1,48 @@
-FUNCTION_BLOCK sensor
+FUNCTION_BLOCK system
 
 VAR_INPUT
-    near : REAL;
-    medium : REAL;
-    far : REAL;
+    sensor : REAL; (* RANGE(0 .. 10) *)
+    robot_velocity : REAL;
+    mushroom : REAL;
+    wheel_angle : REAL; (* RANGE(-45 .. 45) *)
 END_VAR
 
-END_FUNCTION_BLOCK
-
-FUNCTION_BLOCK robot_velocity
-
-VAR_INPUT
-    slow : REAL;
-    medium : REAL;
-    fast : REAL;
+VAR_OUTPUT
+    action : REAL;
 END_VAR
 
-END_FUNCTION_BLOCK
+FUZZIFY sensor
+    TERM near :=
+    TERM medium :=
+    TERM far :=
+END_FUZZIFY
 
-FUNCTION_BLOCK mushroom
+FUZZIFY robot_velocity
+    TERM slow :=
+    TERM medium :=
+    TERM fast :=
+END_FUZZIFY
 
-VAR_INPUT
-    poisonous : REAL;
-    none : REAL;
-    edible : REAL;
-END_VAR
+FUZZIFY mushroom
+    TERM poisonous :=
+    TERM none :=
+    TERM edible :=
+END_FUZZIFY
+
+FUZZIFY wheel_angle
+    TERM strong-left :=
+    TERM left :=
+    TERM center :=
+    TERM right :=
+    TERM strong-right :=
+END_FUZZIFY
+
+DEFUZZIFY action
+    TERM no_action :=
+    TERM destroy :=
+    TERM pick-up :=
+    METHOD: COG;
+    DEFAULT := 0
+END_DEFUZZIFY
 
 END_FUNCTION_BLOCK
