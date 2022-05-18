@@ -4,11 +4,11 @@ VAR_INPUT
     sensor : REAL; (* RANGE(0 .. 10) *)
     robot_velocity : REAL;
     mushroom : REAL;
-    wheel_angle : REAL; (* RANGE(-45 .. 45) *)
 END_VAR
 
 VAR_OUTPUT
     action : REAL;
+    wheel_angle : REAL; (* RANGE(-45 .. 45) *)
 END_VAR
 
 FUZZIFY sensor
@@ -29,18 +29,20 @@ FUZZIFY mushroom
     TERM edible :=
 END_FUZZIFY
 
-FUZZIFY wheel_angle
-    TERM strong-left :=
-    TERM left :=
-    TERM center :=
-    TERM right :=
-    TERM strong-right :=
-END_FUZZIFY
+DEFUZZIFY wheel_angle
+    TERM strong-left := -45;
+    TERM left := -22.5;
+    TERM center := 0;
+    TERM right := 22.5;
+    TERM strong-right := 45;
+    METHOD: COG;
+    DEFAULT := 0
+END_DEFUZZIFY
 
 DEFUZZIFY action
-    TERM no_action :=
-    TERM destroy :=
-    TERM pick-up :=
+    TERM no_action := 0;
+    TERM destroy := 1;
+    TERM pick-up := 2;
     METHOD: COG;
     DEFAULT := 0
 END_DEFUZZIFY
