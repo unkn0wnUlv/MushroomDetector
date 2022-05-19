@@ -1,50 +1,85 @@
 FUNCTION_BLOCK system
 
 VAR_INPUT
-    sensor : REAL; (* RANGE(0 .. 10) *)
-    robot_velocity : REAL;
+    sensor_left : REAL; (* RANGE(0 .. 10) *)
+    sensor_center : REAL; (* RANGE(0 .. 10) *)
+    sensor_right : REAL; (* RANGE(0 .. 10) *)
     mushroom : REAL;
 END_VAR
 
 VAR_OUTPUT
     action : REAL;
+    robot_velocity : REAL;
     wheel_angle : REAL; (* RANGE(-45 .. 45) *)
 END_VAR
 
-FUZZIFY sensor
-    TERM near :=
-    TERM medium :=
-    TERM far :=
+FUZZIFY sensor_right
+    TERM near := (0, 1) (5, 0) ; 
+    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM far := (5, 0) (10, 1);
 END_FUZZIFY
 
-FUZZIFY robot_velocity
-    TERM slow :=
-    TERM medium :=
-    TERM fast :=
+FUZZIFY sensor_left
+    TERM near := (0, 1) (5, 0) ; 
+    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM far := (5, 0) (10, 1);
+END_FUZZIFY
+
+FUZZIFY sensor_center
+    TERM near := (0, 1) (5, 0) ; 
+    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM far := (5, 0) (10, 1);
 END_FUZZIFY
 
 FUZZIFY mushroom
-    TERM poisonous :=
-    TERM none :=
-    TERM edible :=
+    TERM none := (0, 1) (5, 0) ; 
+    TERM edible := (1, 0) (4,1) (6,1) (8,0);
+    TERM poisonous := (5, 0) (10, 1);
 END_FUZZIFY
 
 DEFUZZIFY wheel_angle
-    TERM strong-left := -45;
+    TERM strong_left := -45;
     TERM left := -22.5;
     TERM center := 0;
     TERM right := 22.5;
-    TERM strong-right := 45;
+    TERM strong_right := 45;
     METHOD: COG;
-    DEFAULT := 0
+    DEFAULT := 0;
+END_DEFUZZIFY
+
+DEFUZZIFY robot_velocity
+    TERM slow := 1;
+    TERM medium := 3;
+    TERM fast := 6;
+    METHOD: COG;
+    DEFAULT := 3;
 END_DEFUZZIFY
 
 DEFUZZIFY action
     TERM no_action := 0;
     TERM destroy := 1;
-    TERM pick-up := 2;
+    TERM pickup := 2;
     METHOD: COG;
-    DEFAULT := 0
+    DEFAULT := 0;
 END_DEFUZZIFY
+
+RULEBLOCK first
+
+ACT: MIN;
+ACCU: MAX;
+
+RULE 0: IF (mushroom IS poisonous) THEN action IS destroy;
+RULE 1: IF (mushroom IS edible) THEN action IS pickup;
+RULE 2: IF (mushroom IS none) THEN action IS no_action;
+
+RULE 3: IF (sensor_center IS near) OR (sensor_center IS medium) OR (sensor_center IS far) THEN wheel_angle IS center;
+
+RULE 4: IF (sensor_right IS far) THEN wheel_angle IS right;
+RULE 5: IF (sensor_right IS near) OR (sensor_right IS medium) THEN wheel_angle IS strong_right;
+
+RULE 4: IF (sensor_left IS far) THEN wheel_angle IS left;
+RULE 5: IF (sensor_left IS near) OR (sensor_left IS medium) THEN wheel_angle IS strong_left;
+
+END_RULEBLOCK
 
 END_FUNCTION_BLOCK
