@@ -15,25 +15,25 @@ END_VAR
 
 FUZZIFY sensor_right
     TERM near := (0, 1) (5, 0) ; 
-    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM medium := (1, 0) (4,1) (6,1) (9,0);
     TERM far := (5, 0) (10, 1);
 END_FUZZIFY
 
 FUZZIFY sensor_left
     TERM near := (0, 1) (5, 0) ; 
-    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM medium := (1, 0) (4,1) (6,1) (9,0);
     TERM far := (5, 0) (10, 1);
 END_FUZZIFY
 
 FUZZIFY sensor_center
     TERM near := (0, 1) (5, 0) ; 
-    TERM medium := (1, 0) (4,1) (6,1) (8,0);
+    TERM medium := (1, 0) (4,1) (6,1) (9,0);
     TERM far := (5, 0) (10, 1);
 END_FUZZIFY
 
 FUZZIFY mushroom
     TERM none := (0, 1) (5, 0) ; 
-    TERM edible := (1, 0) (4,1) (6,1) (8,0);
+    TERM edible := (1, 0) (4,1) (6,1) (9,0);
     TERM poisonous := (5, 0) (10, 1);
 END_FUZZIFY
 
@@ -43,7 +43,7 @@ DEFUZZIFY wheel_angle
     TERM center := 0;
     TERM right := 22.5;
     TERM strong_right := 45;
-    METHOD: COG;
+    METHOD: COGS;
     DEFAULT := 0;
 END_DEFUZZIFY
 
@@ -51,7 +51,7 @@ DEFUZZIFY robot_velocity
     TERM slow := 1;
     TERM medium := 3;
     TERM fast := 6;
-    METHOD: COG;
+    METHOD: COGS;
     DEFAULT := 3;
 END_DEFUZZIFY
 
@@ -59,7 +59,7 @@ DEFUZZIFY action
     TERM no_action := 0;
     TERM destroy := 1;
     TERM pickup := 2;
-    METHOD: COG;
+    METHOD: COGS;
     DEFAULT := 0;
 END_DEFUZZIFY
 
