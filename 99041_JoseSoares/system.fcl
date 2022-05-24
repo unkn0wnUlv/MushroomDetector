@@ -32,27 +32,27 @@ FUZZIFY sensor_center
 END_FUZZIFY
 
 FUZZIFY mushroom
-    TERM none := (0, 1) (5, 0) ; 
-    TERM edible := (1, 0) (4,1) (6,1) (9,0);
-    TERM poisonous := (5, 0) (10, 1);
+    TERM none := (0, 1) (5, 1) (10,0) ; 
+    TERM edible := (10, 0) (15,1) (20,0);
+    TERM poisonous := (20, 0) (25,1) (30, 0);
 END_FUZZIFY
 
 DEFUZZIFY wheel_angle
-    TERM strong_left := -45;
-    TERM left := -22.5;
+    TERM strong_left := 45;
+    TERM left := 22.5;
     TERM center := 0;
-    TERM right := 22.5;
-    TERM strong_right := 45;
+    TERM right := -22.5;
+    TERM strong_right := -45;
     METHOD: COGS;
     DEFAULT := 0;
 END_DEFUZZIFY
 
 DEFUZZIFY robot_velocity
     TERM slow := 1;
-    TERM medium := 3;
-    TERM fast := 6;
+    TERM medium := 5;
+    TERM fast := 10;
     METHOD: COGS;
-    DEFAULT := 3;
+    DEFAULT := 5;
 END_DEFUZZIFY
 
 DEFUZZIFY action
@@ -68,17 +68,20 @@ RULEBLOCK first
 ACT: MIN;
 ACCU: MAX;
 
-RULE 0: IF (mushroom IS poisonous) THEN action IS destroy;
-RULE 1: IF (mushroom IS edible) THEN action IS pickup;
-RULE 2: IF (mushroom IS none) THEN action IS no_action;
+RULE 0: IF (mushroom IS poisonous) AND ((sensor_center IS near) OR (sensor_right IS near) OR (sensor_left IS near)) THEN action IS destroy;
+RULE 1: IF (mushroom IS edible) AND ((sensor_center IS near) OR (sensor_right IS near) OR (sensor_left IS near)) THEN action IS pickup;
+RULE 2: IF (mushroom IS none) AND ((sensor_center IS near) OR (sensor_right IS near) OR (sensor_left IS near)) THEN action IS no_action;
+
 
 RULE 3: IF (sensor_center IS near) OR (sensor_center IS medium) OR (sensor_center IS far) THEN wheel_angle IS center;
 
-RULE 4: IF (sensor_right IS far) THEN wheel_angle IS right;
-RULE 5: IF (sensor_right IS near) OR (sensor_right IS medium) THEN wheel_angle IS strong_right;
+RULE 4: IF (sensor_right IS far)  THEN wheel_angle IS strong_right;
+RULE 5: IF (sensor_right IS medium) THEN wheel_angle IS right;
+RULE 6: IF (sensor_right IS near) THEN wheel_angle IS center;
 
-RULE 4: IF (sensor_left IS far) THEN wheel_angle IS left;
-RULE 5: IF (sensor_left IS near) OR (sensor_left IS medium) THEN wheel_angle IS strong_left;
+RULE 7: IF (sensor_left IS far)  THEN wheel_angle IS strong_left;
+RULE 8: IF (sensor_left IS medium) THEN wheel_angle IS left;
+RULE 9: IF (sensor_left IS near) THEN wheel_angle IS center;
 
 END_RULEBLOCK
 
