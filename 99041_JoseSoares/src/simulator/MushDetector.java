@@ -1,55 +1,55 @@
 package simulator;
 
-import javax.swing.ActionMap;
-
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import weka.classifiers.trees.J48;
-import simulator.NewInstances;
-import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class MushDetector {
-    private static String MLJ48(String[] mushroom) {
+    private static J48 MLJ48() {
+        J48 classifier = null;
+        try {
+            DataSource source = new DataSource("mushroom.arff");
+            Instances dataset = source.getDataSet();
+            dataset.setClassIndex(dataset.numAttributes()-1);
+
+            classifier = new J48();
+            classifier.buildClassifier(dataset);
+        } catch (Exception e) {
+            System.err.println("Something went wrong when building classifier");
+        }
+
+        return classifier;
+
+    }
+
+    private static String predictMushroom(J48 classifier, String[] mushroom) {
         String pred = "";
         try {
             DataSource source = new DataSource("mushroom.arff");
             Instances dataset = source.getDataSet();
             dataset.setClassIndex(dataset.numAttributes()-1);
 
-            J48 classifier = new J48();
-            classifier.buildClassifier(dataset);
-            
-            /*
-            Visualizer v = new Visualizer();
-            v.start(classifier);
-            */
+            NewInstances ni = new NewInstances(dataset);
+            ni.addInstance(mushroom);
 
-            // The values bellow are for test porpuses only
-			NewInstances ni = new NewInstances(dataset);
-			ni.addInstance(mushroom);
+           Instances predict_dt = ni.getDataset();
 
-			Instances predict_dt = ni.getDataset();
+            for (int i = 0; i < predict_dt.numInstances(); i++) {
+                Instance inst = predict_dt.instance(i);
 
-			for (int i = 0; i < predict_dt.numInstances(); i++) {
-				Instance inst = predict_dt.instance(i);
-                
-				String act = inst.stringValue(inst.numAttributes() - 1);
-				double actual = inst.classValue();
-
-				double predict = classifier.classifyInstance(inst);
-				pred = predict_dt.classAttribute().value((int) (predict));
-			}
-
+                double predict = classifier.classifyInstance(inst);
+                pred = predict_dt.classAttribute().value((int) (predict));
+            }
         } catch (Exception e) {
-            System.err.println("Something went wrong");
+            System.err.println("Something went wrong when predicting");
         }
-
         return pred;
     }
 
+    
 
 	public static void main(String[] args) {
         Simulator sim = new Simulator();	
@@ -62,9 +62,13 @@ public class MushDetector {
         
        
         FunctionBlock fb = fis.getFunctionBlock(null);
+        sim.setSimulationSpeed(50);
+
+        J48 classifier = MLJ48();
 
         while (true) {
             sim.step();
+            sim.setAction(Action.NO_ACTION);
             double rightDistance = sim.getDistanceR();
             double leftDistance = sim.getDistanceL();
             double centerDistance = sim.getDistanceC();
@@ -75,7 +79,7 @@ public class MushDetector {
             sim.setRobotAngle(fb.getVariable("wheel_angle").defuzzify());
             
             if (sim.getMushroomAttributes() != null) {
-                String mushroomPrediction = MLJ48(sim.getMushroomAttributes());
+                String mushroomPrediction = predictMushroom(classifier, sim.getMushroomAttributes());
                 if (mushroomPrediction.equals("poisonous")) 
                     fb.setVariable("mushroom", 25);
                 else if (mushroomPrediction.equals("edible"))
@@ -87,12 +91,13 @@ public class MushDetector {
 
                 sim.setRobotAngle(fb.getVariable("wheel_angle").defuzzify());
                 double action = fb.getVariable("action").defuzzify();
-
-                if (action == 0.0) sim.setAction(Action.NO_ACTION);
-                else if (action == 1.0) sim.setAction(Action.DESTROY);
-                else if (action == 2.0) sim.setAction(Action.PICK_UP);
-                sim.step();
-                break;     
+                 
+                if (Math.min(leftDistance, Math.min(centerDistance, rightDistance)) < 1) {
+                    if (action == 0.0) sim.setAction(Action.NO_ACTION);
+                    else if (action == 1.0) sim.setAction(Action.DESTROY);
+                    else if (action == 2.0) sim.setAction(Action.PICK_UP);
+   
+                }
             }
 
         }

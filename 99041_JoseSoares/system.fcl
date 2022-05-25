@@ -32,7 +32,7 @@ FUZZIFY sensor_center
 END_FUZZIFY
 
 FUZZIFY mushroom
-    TERM none := (0, 1) (5, 1) (10,0) ; 
+    TERM none := (0, 0) (5, 1) (10,0) ; 
     TERM edible := (10, 0) (15,1) (20,0);
     TERM poisonous := (20, 0) (25,1) (30, 0);
 END_FUZZIFY
